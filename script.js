@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ROMANTIC DATE INVITATION — JAVASCRIPT CONTROLLER
+   ROMANTIC DATE INVITATION — JAVASCRIPT CONTROLLER (REFINED)
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -40,6 +40,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Target date for countdown (26th August, 2026)
     const targetDate = new Date('August 26, 2026 00:00:00').getTime();
+
+    // Set initial active scene visibility in relative layout flow
+    const firstScene = document.getElementById('scene-1');
+    if (firstScene) {
+        firstScene.style.display = 'flex';
+        // Force reflow and set active class
+        void firstScene.offsetHeight;
+        firstScene.classList.add('active');
+        firstScene.style.opacity = 1;
+        firstScene.style.transform = 'scale(1) translateY(0)';
+    }
 
     // ==========================================================================
     // SOUND EFFECTS VIA WEB AUDIO API (Synthesized Chimes)
@@ -103,8 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(freq, now);
-                    // Add some vibrato
-                    osc.frequency.setValueAtTime(freq, now);
                     osc.frequency.linearRampToValueAtTime(freq + (Math.random() * 10 - 5), now + 0.5);
                     
                     gain.gain.setValueAtTime(0, now);
@@ -133,32 +142,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Start fade out of current
         if (currentActive) {
-            currentActive.style.opacity = 0;
-            currentActive.style.transform = 'scale(0.97) translateY(-15px)';
-            currentActive.style.pointerEvents = 'none';
+            currentActive.style.opacity = '0';
+            currentActive.style.transform = 'scale(0.96) translateY(-15px)';
             
             setTimeout(() => {
                 currentActive.classList.remove('active');
+                currentActive.style.display = 'none';
                 
                 // Prepare target
-                targetScene.classList.add('active');
+                targetScene.style.display = 'flex';
+                targetScene.style.opacity = '0';
+                targetScene.style.transform = 'scale(0.96) translateY(15px)';
+                
                 // Trigger reflow
-                targetScene.offsetHeight;
+                void targetScene.offsetHeight;
                 
                 // Fade in target
-                targetScene.style.opacity = 1;
+                targetScene.classList.add('active');
+                targetScene.style.opacity = '1';
                 targetScene.style.transform = 'scale(1) translateY(0)';
-                targetScene.style.pointerEvents = 'auto';
                 
-                // Focus container for accessibility if needed
+                // Focus target scene
                 targetScene.setAttribute('tabindex', '-1');
                 targetScene.focus();
-            }, 800); // match transition duration
+            }, 550); // match transition duration
         } else {
+            targetScene.style.display = 'flex';
+            void targetScene.offsetHeight;
             targetScene.classList.add('active');
-            targetScene.style.opacity = 1;
+            targetScene.style.opacity = '1';
             targetScene.style.transform = 'scale(1) translateY(0)';
-            targetScene.style.pointerEvents = 'auto';
         }
     }
 
@@ -175,7 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Try to autoplay background music (user action allows it)
             if (!musicBtn.classList.contains('muted')) {
-                bgMusic.play().catch(err => {
+                bgMusic.play().then(() => {
+                    musicBtn.querySelector('span').innerText = "Mute Music 🔇";
+                }).catch(err => {
                     console.log("Autoplay music blocked, will toggle manually:", err);
                 });
             }
@@ -188,49 +203,67 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================================================
-    // SCENE 2: NO BUTTON DODGE LOGIC
+    // SCENE 2: NO BUTTON VIEWPORT DODGE LOGIC
     // ==========================================================================
     function dodgeNoButton(e) {
         // Play bounce audio
         playSynthesizedSound('dodge');
         
-        const card = btnNo.closest('.glass-card');
-        const cardRect = card.getBoundingClientRect();
         const btnNoRect = btnNo.getBoundingClientRect();
         
-        // Ensure absolute positioning is enabled on first dodge
-        if (btnNo.style.position !== 'absolute') {
-            btnNo.style.position = 'absolute';
-            btnNo.style.zIndex = '50';
-            btnNo.style.margin = '0';
+        // Convert to absolute fixed viewport position
+        if (btnNo.style.position !== 'fixed') {
+            btnNo.style.position = 'fixed';
+            btnNo.style.zIndex = '1000';
+            btnNo.style.transition = 'left 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), top 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
         }
 
-        // Available movement boundaries within card padding
-        const padding = 25;
-        const maxX = cardRect.width - btnNoRect.width - padding * 2;
-        const maxY = cardRect.height - btnNoRect.height - padding * 2;
+        // Available viewport movement boundaries with 20px padding
+        const padding = 20;
+        const maxX = window.innerWidth - btnNoRect.width - padding * 2;
+        const maxY = window.innerHeight - btnNoRect.height - padding * 2;
         
         // Generate new random positions
         let randomX = Math.random() * maxX + padding;
         let randomY = Math.random() * maxY + padding;
         
-        // Avoid overlap with the cursor
-        let cursorX = e.clientX ? e.clientX - cardRect.left : cardRect.width / 2;
-        let cursorY = e.clientY ? e.clientY - cardRect.top : cardRect.height / 2;
+        // Determine cursor/touch coordinates to avoid
+        let cursorX = window.innerWidth / 2;
+        let cursorY = window.innerHeight / 2;
         
-        // If too close to the cursor, offset it
-        const minDistance = 75;
-        const dist = Math.hypot(randomX - cursorX, randomY - cursorY);
-        if (dist < minDistance) {
-            randomX = (randomX + 150) % maxX + padding;
-            randomY = (randomY + 150) % maxY + padding;
+        if (e) {
+            if (e.clientX !== undefined) {
+                cursorX = e.clientX;
+                cursorY = e.clientY;
+            } else if (e.touches && e.touches.length > 0) {
+                cursorX = e.touches[0].clientX;
+                cursorY = e.touches[0].clientY;
+            } else if (e.changedTouches && e.changedTouches.length > 0) {
+                cursorX = e.changedTouches[0].clientX;
+                cursorY = e.changedTouches[0].clientY;
+            }
+        }
+        
+        // Enforce safe dodge radius away from cursor/finger (at least 150px or 30vw)
+        const minDistance = Math.max(150, window.innerWidth * 0.3);
+        let checkCount = 0;
+        
+        while (Math.hypot(randomX - cursorX, randomY - cursorY) < minDistance && checkCount < 15) {
+            randomX = Math.random() * maxX + padding;
+            randomY = Math.random() * maxY + padding;
+            checkCount++;
         }
 
-        // Apply new position
+        // Apply new viewport coordinates
         btnNo.style.left = `${randomX}px`;
         btnNo.style.top = `${randomY}px`;
         
-        // Show cute tease caption
+        // Apply cute bounce keyframe triggers
+        btnNo.classList.remove('dodge-bounce');
+        void btnNo.offsetWidth; // trigger reflow
+        btnNo.classList.add('dodge-bounce');
+        
+        // Show cute teasing caption
         dodgeCount++;
         const phraseIndex = (dodgeCount - 1) % teasingPhrases.length;
         dodgeCaption.innerText = teasingPhrases[phraseIndex];
@@ -241,17 +274,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Limit max scale to keep within screen limits
         const cappedScale = Math.min(yesScale, 2.2);
         btnYes.style.transform = `scale(${cappedScale})`;
-        
-        // Add romantic glow and shadow emphasis to YES button
-        btnYes.style.boxShadow = `0 10px ${20 + (dodgeCount * 5)}px rgba(255, 94, 126, ${0.3 + (dodgeCount * 0.1)})`;
+        btnYes.style.boxShadow = `0 10px ${20 + (dodgeCount * 6)}px rgba(255, 94, 126, ${0.35 + (dodgeCount * 0.1)})`;
     }
 
-    // Add dodge events
-    btnNo.addEventListener('mouseenter', dodgeNoButton);
-    btnNo.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // Prevents clicks on touch devices
-        dodgeNoButton(e.touches[0]);
+    // Add dodge events for both desktop (hover) and mobile (tap/touch)
+    btnNo.addEventListener('mouseenter', (e) => {
+        dodgeNoButton(e);
     });
+    
+    btnNo.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevents triggers twice or firing normal click
+        dodgeNoButton(e);
+    });
+    
     btnNo.addEventListener('click', (e) => {
         e.preventDefault();
         dodgeNoButton(e);
@@ -271,8 +306,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Trigger large explosion on background canvas
         createHeartBurst(burstX, burstY, 80);
         
-        // Wait briefly for burst effect to expand, then transition
+        // Reset No button positioning style to default flow when moving away
         setTimeout(() => {
+            btnNo.style.position = '';
+            btnNo.style.left = '';
+            btnNo.style.top = '';
+            btnNo.style.transition = '';
+            btnNo.classList.remove('dodge-bounce');
+            
             transitionTo('scene-3');
             startCountdown();
         }, 600);
@@ -366,6 +407,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnNo.style.left = '';
         btnNo.style.top = '';
         btnNo.style.margin = '';
+        btnNo.style.transition = '';
+        btnNo.classList.remove('dodge-bounce');
         dodgeCaption.classList.remove('show');
         
         // Re-seal landing screen
@@ -415,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================================================
-    // CANVAS PARTICLE SYSTEM (PETALS, SPARKLER STARS, HEARTS)
+    // CANVAS PARTICLE SYSTEM (LARGER, DRIFTING PETALS, KISSES, SPARKLER STARS, HEARTS)
     // ==========================================================================
     const canvas = document.getElementById('ambient-canvas');
     const ctx = canvas.getContext('2d');
@@ -429,24 +472,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const particles = [];
-    const maxParticles = 65;
+    const maxParticles = 75; // Increased density
 
-    // Petal Images Preloading simulation (drawing vector shapes directly)
     class Particle {
         constructor(isBurst = false, burstX = 0, burstY = 0) {
             this.isBurst = isBurst;
             
-            // Set type: 'petal', 'star', 'heart'
-            const types = ['petal', 'star', 'heart'];
+            // Set type: 'petal', 'star', 'heart', 'kiss'
+            const types = ['petal', 'star', 'heart', 'kiss'];
             if (isBurst) {
-                // Burst contains more hearts and stars
-                this.type = Math.random() > 0.4 ? 'heart' : (Math.random() > 0.5 ? 'star' : 'petal');
+                // Burst contains more hearts and kisses
+                this.type = Math.random() > 0.45 ? 'heart' : (Math.random() > 0.5 ? 'kiss' : (Math.random() > 0.5 ? 'star' : 'petal'));
                 this.x = burstX;
                 this.y = burstY;
                 
                 // Explode radially
                 const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 6 + 2;
+                const speed = Math.random() * 7 + 3;
                 this.vx = Math.cos(angle) * speed;
                 this.vy = Math.sin(angle) * speed;
                 this.alpha = 1;
@@ -454,28 +496,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.maxLife = this.life;
             } else {
                 // Normal ambient drifts
-                this.type = Math.random() > 0.65 ? 'star' : (Math.random() > 0.5 ? 'heart' : 'petal');
+                this.type = Math.random() > 0.7 ? 'star' : (Math.random() > 0.4 ? 'heart' : (Math.random() > 0.3 ? 'kiss' : 'petal'));
                 this.x = Math.random() * width;
                 this.y = Math.random() * height - height;
-                this.vx = Math.random() * 1.5 - 0.75 + (this.type === 'petal' ? 0.3 : 0); // petal drifts right slightly
+                this.vx = Math.random() * 1.5 - 0.75 + (this.type === 'petal' ? 0.4 : 0); // drift right slightly
                 this.vy = Math.random() * 1.2 + 0.6; // down velocity
-                this.alpha = Math.random() * 0.4 + 0.3;
-                this.life = 9999; // Ambient live indefinitely until recycled
+                this.alpha = Math.random() * 0.4 + 0.35;
+                this.life = 9999;
                 this.maxLife = 9999;
             }
 
-            this.size = Math.random() * 12 + 8;
+            // LARGER particle sizes as requested by user
+            this.size = Math.random() * 25 + 15; // Sizes range from 15px to 40px
             this.rotation = Math.random() * Math.PI * 2;
-            this.rotationSpeed = (Math.random() * 0.02 - 0.01) * (this.type === 'petal' ? 2 : 1);
+            this.rotationSpeed = (Math.random() * 0.02 - 0.01) * (this.type === 'petal' ? 2.2 : 1.2);
             
             // Colors
-            // Hearts are pink/red, stars are golden/white, petals are soft rose
             if (this.type === 'heart') {
-                const hues = [340, 350, 355, 10]; // Red/Pink colors
+                const hues = [340, 350, 355, 10]; // Cute pinks/reds
                 this.hue = hues[Math.floor(Math.random() * hues.length)];
                 this.color = `hsla(${this.hue}, 95%, 75%, ${this.alpha})`;
+            } else if (this.type === 'kiss') {
+                // Kisses are soft ruby/lips red-pink
+                this.color = `rgba(255, 75, 102, ${this.alpha})`;
             } else if (this.type === 'star') {
-                this.color = `rgba(255, 223, 115, ${this.alpha})`; // gold star
+                this.color = `rgba(255, 223, 115, ${this.alpha})`; // gold star sparkle
             } else {
                 // Rose petal color range (light peach pinks)
                 const petalHues = [345, 350, 355];
@@ -493,18 +538,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.life--;
                 this.alpha = this.life / this.maxLife;
                 // Add soft gravity and drag
-                this.vy += 0.05; 
+                this.vy += 0.055; 
                 this.vx *= 0.98;
                 this.vy *= 0.98;
             } else {
                 // Wind wiggle for floating petals
-                if (this.type === 'petal') {
-                    this.vx += Math.sin(this.y * 0.01) * 0.01;
+                if (this.type === 'petal' || this.type === 'kiss') {
+                    this.vx += Math.sin(this.y * 0.008) * 0.012;
                 }
                 
                 // Recycle normal particles that go off-screen
-                if (this.y > height + 20 || this.x < -20 || this.x > width + 20) {
-                    this.y = -20;
+                if (this.y > height + 40 || this.x < -40 || this.x > width + 40) {
+                    this.y = -40;
                     this.x = Math.random() * width;
                     this.vy = Math.random() * 1.2 + 0.6;
                     this.vx = Math.random() * 1.5 - 0.75;
@@ -518,8 +563,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.rotate(this.rotation);
             ctx.globalAlpha = this.isBurst ? this.alpha : (this.alpha * getSceneAmbientAlpha(this.type));
             
+            // Add a soft glowing blur to stars and hearts
+            if (this.type === 'star' || this.type === 'heart') {
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = this.type === 'star' ? 'rgba(255, 223, 115, 0.4)' : 'rgba(255, 94, 126, 0.4)';
+            }
+            
             if (this.type === 'heart') {
-                // Draw heart shape
+                // Heart shape
                 ctx.beginPath();
                 ctx.fillStyle = this.color;
                 const size = this.size * 0.8;
@@ -531,8 +582,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.quadraticCurveTo(size / 2, -size / 2, 0, size / 4);
                 ctx.fill();
                 
+            } else if (this.type === 'kiss') {
+                // Draw Lips / Kiss Shape
+                ctx.beginPath();
+                ctx.fillStyle = this.color;
+                const s = this.size * 0.75;
+                
+                // Draw top lip
+                ctx.moveTo(-s / 2, 0);
+                ctx.bezierCurveTo(-s / 4, -s / 3, -s / 8, -s / 3, 0, -s / 12);
+                ctx.bezierCurveTo(s / 8, -s / 3, s / 4, -s / 3, s / 2, 0);
+                // Draw bottom lip
+                ctx.bezierCurveTo(s / 3, s / 3, -s / 3, s / 3, -s / 2, 0);
+                ctx.closePath();
+                ctx.fill();
+                
             } else if (this.type === 'star') {
-                // Draw four-point star / sparkle
+                // Star shape
                 ctx.beginPath();
                 ctx.fillStyle = this.color;
                 const r = this.size * 0.6;
@@ -545,12 +611,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.fill();
                 
             } else {
-                // Draw soft oval rose petal
+                // Soft rose petal shape
                 ctx.beginPath();
                 ctx.fillStyle = this.color;
                 const w = this.size;
                 const h = this.size * 1.4;
-                // Draw drop petal shape
                 ctx.moveTo(0, -h / 2);
                 ctx.bezierCurveTo(w / 2, -h / 2, w, h / 4, 0, h / 2);
                 ctx.bezierCurveTo(-w, h / 4, -w / 2, -h / 2, 0, -h / 2);
@@ -568,13 +633,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = activeScene.id;
         
         if (id === 'scene-3' || id === 'scene-4') {
-            // Scene 3 and 4 have higher opacity/glow for hearts and petals
             return type === 'heart' ? 1.0 : 0.85;
         }
         if (id === 'scene-2') {
-            return type === 'heart' ? 0.4 : 0.6;
+            return type === 'heart' ? 0.5 : 0.65;
         }
-        return type === 'heart' ? 0.2 : 0.5; // Scene 1 mostly stars/petals, fewer hearts visible
+        return type === 'heart' ? 0.35 : 0.6;
     }
 
     // Initialize ambient particles
@@ -582,7 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
         particles.push(new Particle(false));
     }
 
-    // Create explosion burst of hearts/stars
+    // Create explosion burst of hearts/stars/kisses
     function createHeartBurst(x, y, count = 50) {
         for (let i = 0; i < count; i++) {
             particles.push(new Particle(true, x, y));
@@ -590,23 +654,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================================================
-    // INTERACTIVE CURSOR TRAIL
+    // INTERACTIVE CURSOR TRAIL (COLOURED HEARTS)
     // ==========================================================================
     const cursorTrail = [];
     const maxTrailLength = 15;
-    
-    // Throttle cursor trails to prevent rendering overhead
     let lastMouseMove = 0;
     
     window.addEventListener('mousemove', (e) => {
         const now = Date.now();
-        if (now - lastMouseMove < 40) return; // limit to 25fps for trails
+        if (now - lastMouseMove < 35) return; // limit to ~30fps for trail rendering
         lastMouseMove = now;
         
         cursorTrail.push({
             x: e.clientX,
             y: e.clientY,
-            size: Math.random() * 8 + 6,
+            size: Math.random() * 10 + 8, // slightly larger heart trails
             angle: Math.random() * Math.PI * 2,
             opacity: 1,
             color: `hsla(${Math.random() > 0.5 ? 350 : 340}, 95%, 78%, 0.8)`
@@ -623,7 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cursorTrail.push({
                 x: touch.clientX,
                 y: touch.clientY,
-                size: Math.random() * 8 + 6,
+                size: Math.random() * 10 + 8,
                 angle: Math.random() * Math.PI * 2,
                 opacity: 1,
                 color: `hsla(345, 95%, 78%, 0.8)`
@@ -637,8 +699,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawCursorTrail() {
         for (let i = 0; i < cursorTrail.length; i++) {
             const point = cursorTrail[i];
-            point.opacity -= 0.05; // Fade out
-            point.y -= 1.2; // Float up slightly
+            point.opacity -= 0.04;
+            point.y -= 1.4;
             
             if (point.opacity <= 0) {
                 cursorTrail.splice(i, 1);
@@ -652,7 +714,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.globalAlpha = point.opacity;
             ctx.fillStyle = point.color;
             
-            // Draw small heart
             const size = point.size;
             ctx.beginPath();
             ctx.moveTo(0, size / 4);
@@ -694,21 +755,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start main animation loop
     tick();
 
-    // Start background heart floating continuously on Scenes 3 and 4
+    // Spawn an extra floating ambient heart/kiss from the bottom of the screen continuously
     setInterval(() => {
         const activeScene = document.querySelector('.scene.active');
         if (activeScene && (activeScene.id === 'scene-3' || activeScene.id === 'scene-4')) {
-            // Spawn an extra floating ambient heart from bottom of screen
             const x = Math.random() * width;
-            const y = height + 10;
+            const y = height + 20;
             const p = new Particle(true, x, y);
             p.isBurst = true;
-            p.vy = -Math.random() * 2 - 0.5; // Float upwards
+            p.vy = -Math.random() * 2.2 - 0.6; // upward velocity
             p.vx = Math.random() * 1.5 - 0.75;
             p.life = 250;
             p.maxLife = 250;
             particles.push(p);
         }
-    }, 400);
+    }, 380);
 
 });

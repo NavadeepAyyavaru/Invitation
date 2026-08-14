@@ -164,24 +164,23 @@ body {
 }
 
 .scene {
-    position: absolute;
+    position: relative;
     width: 100%;
     max-width: 600px;
-    padding: 20px;
-    display: flex;
+    padding: 15px;
+    display: none; /* Hide by default, toggled in JS to display: flex */
     flex-direction: column;
     justify-content: center;
     align-items: center;
     opacity: 0;
-    pointer-events: none;
-    transform: scale(0.95) translateY(20px);
-    transition: opacity var(--transition-slow), transform var(--transition-slow);
+    transform: scale(0.96) translateY(15px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
     z-index: 1;
 }
 
 .scene.active {
+    display: flex;
     opacity: 1;
-    pointer-events: auto;
     transform: scale(1) translateY(0);
     z-index: 10;
 }
@@ -273,11 +272,12 @@ body {
     height: 140px;
     margin: 0 auto;
     cursor: pointer;
-    transition: transform var(--transition-medium);
+    animation: sealFloat 4s infinite ease-in-out;
 }
 
-.seal-container:hover {
-    transform: scale(1.08) rotate(3deg);
+@keyframes sealFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
 }
 
 .seal-ring {
@@ -303,10 +303,12 @@ body {
 }
 
 @keyframes rotateClockwise {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 @keyframes rotateCounter {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(-360deg); }
 }
 
@@ -316,10 +318,15 @@ body {
     height: 100%;
     background: #e04b66;
     border-radius: 50%;
-    box-shadow: 0 10px 25px rgba(224, 75, 102, 0.4), inset 0 2px 5px rgba(255,255,255,0.4), inset 0 -4px 10px rgba(0,0,0,0.25);
+    box-shadow: 0 10px 25px rgba(224, 75, 102, 0.35), 0 0 15px rgba(212, 175, 55, 0.25), inset 0 2px 5px rgba(255,255,255,0.4), inset 0 -4px 10px rgba(0,0,0,0.25);
     overflow: hidden;
     display: flex;
-    transition: transform 0.5s ease-out;
+    transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+}
+
+.seal-container:hover .seal-wax {
+    transform: scale(1.08) rotate(3deg);
+    box-shadow: 0 15px 35px rgba(224, 75, 102, 0.5), 0 0 25px rgba(212, 175, 55, 0.5), inset 0 2px 5px rgba(255,255,255,0.4), inset 0 -4px 10px rgba(0,0,0,0.25);
 }
 
 /* Splitting Mechanism */
@@ -913,6 +920,18 @@ body {
         width: 100%;
         justify-content: center;
     }
+}
+
+/* Dodging Button Cute Bounce Effect */
+.dodge-bounce {
+    animation: cuteDodgeBounce 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes cuteDodgeBounce {
+    0% { transform: scale(1) rotate(0deg); }
+    30% { transform: scale(0.75) rotate(-12deg); }
+    70% { transform: scale(1.18) rotate(12deg); }
+    100% { transform: scale(1) rotate(0deg); }
 }
 
 /* Keyboard Focus States for accessibility */
