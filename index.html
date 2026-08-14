@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Invitation for Bhavuu 💌</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Nunito:ital,wght@0,300..900;1,300..900&family=Quicksand:wght@300..700&family=Sacramento&display=swap" rel="stylesheet">
+    <!-- Font Awesome for clean icon sets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Linking custom stylesheets -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Ambient Particle & Flower Petal Canvas -->
+    <canvas id="ambient-canvas"></canvas>
+
+    <!-- Music Player Controls -->
+    <div class="music-controller">
+        <button id="music-btn" aria-label="Toggle Background Music">
+            <i class="fas fa-heart animate-heart"></i>
+            <span class="tooltip">Play Music 🎵</span>
+        </button>
+        <audio id="bg-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+    </div>
+
+    <!-- Main Container -->
+    <main class="invitation-container">
+
+        <!-- SCENE 1: LANDING PAGE -->
+        <section id="scene-1" class="scene active">
+            <div class="hero-content">
+                <p class="pre-title">Created with love, just for you</p>
+                <h1 class="headline romantic-text">This belongs to my angel, <span class="highlight">Bhavuu</span></h1>
+                <p class="flirty-subtitle italic-serif">"You make my heart beat a little faster, my smile shine a little brighter..."</p>
+                
+                <!-- 3D Monogram Wax Seal -->
+                <div class="seal-container" id="wax-seal">
+                    <div class="seal-ring outer"></div>
+                    <div class="seal-ring inner"></div>
+                    <div class="seal-wax">
+                        <div class="seal-left">
+                            <span class="monogram-part">B</span>
+                        </div>
+                        <div class="seal-right">
+                            <span class="monogram-part">B</span>
+                        </div>
+                        <div class="seal-crack-line"></div>
+                    </div>
+                </div>
+                
+                <p class="instruction-caption">Break the seal to open your invitation</p>
+            </div>
+        </section>
+
+        <!-- SCENE 2: THE QUESTION -->
+        <section id="scene-2" class="scene">
+            <div class="glass-card">
+                <div class="card-header">
+                    <div class="cute-icon-badge"><i class="fas fa-envelope-open-heart"></i></div>
+                </div>
+                <h2 class="scene-title romantic-text">Will you come on a date with me, beautiful?</h2>
+                
+                <!-- Styled Date Chip -->
+                <div class="date-chip">
+                    <i class="far fa-calendar-alt"></i>
+                    <span>26th August, 2026</span>
+                </div>
+
+                <p class="flirty-tagline">"I promise a day full of sweet surprises, endless laughter, and your favorite things..."</p>
+
+                <!-- Interactive Buttons -->
+                <div class="button-group" id="question-actions">
+                    <button id="btn-yes" class="btn primary-btn btn-pulse">
+                        <i class="fas fa-heart"></i> Yes!
+                    </button>
+                    <button id="btn-no" class="btn secondary-btn">
+                        No <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="dodge-caption-container">
+                    <p id="dodge-caption" class="dodge-caption"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 3: CONFIRMATION -->
+        <section id="scene-3" class="scene">
+            <div class="glass-card confirmation-card">
+                <div class="celebration-header">
+                    <h2 class="scene-title romantic-text">Yay! It's a Date! 💖</h2>
+                    <p class="celebration-sub">My heart is doing happy backflips right now!</p>
+                </div>
+
+                <!-- Live Countdown Timer -->
+                <div class="countdown-wrapper">
+                    <h3 class="timer-title">Counting down the seconds...</h3>
+                    <div class="countdown-container">
+                        <div class="time-block">
+                            <span id="days" class="time-number">00</span>
+                            <span class="time-label">Days</span>
+                        </div>
+                        <div class="time-block">
+                            <span id="hours" class="time-number">00</span>
+                            <span class="time-label">Hrs</span>
+                        </div>
+                        <div class="time-block">
+                            <span id="minutes" class="time-number">00</span>
+                            <span class="time-label">Mins</span>
+                        </div>
+                        <div class="time-block">
+                            <span id="seconds" class="time-number">00</span>
+                            <span class="time-label">Secs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Letter Card -->
+                <div class="letter-box">
+                    <p class="letter-text">
+                        Dearest Bhavuu,<br><br>
+                        You make my heart skip a beat every single time you smile. I am so incredibly excited to spend this special day with you. Get ready for a lovely date filled with sweet moments, cozy chats, and memory-making. Thank you for making my life so beautiful just by being in it. <br><br>
+                        See you very soon, my angel. ❤️
+                    </p>
+                </div>
+
+                <!-- Navigation Group -->
+                <div class="navigation-group">
+                    <button id="btn-gallery" class="btn primary-btn btn-shine">
+                        <i class="fas fa-images"></i> Memories of Us
+                    </button>
+                    <button id="btn-reset" class="btn text-btn">
+                        <i class="fas fa-undo-alt"></i> Read invitation again
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENE 4: MEMORIES GALLERY -->
+        <section id="scene-4" class="scene">
+            <div class="gallery-wrapper">
+                <h2 class="scene-title romantic-text">Memories of You, Bhavuu ✨</h2>
+                <p class="gallery-sub italic-serif">"Every time I look at you, I see my favorite dream come true..."</p>
+
+                <!-- Polaroid Stack / Grid -->
+                <div class="polaroid-grid">
+                    <!-- Polaroid 1 -->
+                    <div class="polaroid-card" style="--rotation: -4deg;">
+                        <div class="polaroid-img-wrapper">
+                            <img src="images/pic1.jpg" alt="Bhavuu looking adorable with heart stickers filter">
+                            <div class="sparkle-overlay"></div>
+                        </div>
+                        <div class="polaroid-caption">
+                            <p class="caption-text font-sacramento">That beautiful smile... it brightens up my whole world. 💖</p>
+                        </div>
+                    </div>
+
+                    <!-- Polaroid 2 -->
+                    <div class="polaroid-card" style="--rotation: 3deg;">
+                        <div class="polaroid-img-wrapper">
+                            <img src="images/pic2.png" alt="Bhavuu laying down, looking angelic">
+                            <div class="sparkle-overlay"></div>
+                        </div>
+                        <div class="polaroid-caption">
+                            <p class="caption-text font-sacramento">Pure innocence and grace. You are my dream. ✨</p>
+                        </div>
+                    </div>
+
+                    <!-- Polaroid 3 -->
+                    <div class="polaroid-card" style="--rotation: -2deg;">
+                        <div class="polaroid-img-wrapper">
+                            <img src="images/pic3.jpg" alt="Bhavuu posing in a gorgeous yellow floral outfit near a banyan tree">
+                            <div class="sparkle-overlay"></div>
+                        </div>
+                        <div class="polaroid-caption">
+                            <p class="caption-text font-sacramento">A radiant sunflower! You bring warmth wherever you go. 🌻</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-navigation">
+                    <button id="btn-back-invitation" class="btn primary-btn">
+                        <i class="fas fa-heart-broken" style="transform: rotate(180deg);"></i> Back to Invitation
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Photo Lightroom Modal View -->
+    <div id="lightroom-modal" class="modal">
+        <span class="close-modal">&times;</span>
+        <div class="modal-content-wrapper">
+            <img class="modal-content" id="modal-img">
+            <div id="modal-caption" class="font-sacramento"></div>
+        </div>
+    </div>
+
+    <!-- Loading custom scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
