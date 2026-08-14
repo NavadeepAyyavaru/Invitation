@@ -367,7 +367,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     // MUSIC PLAYER CONTROLLER
     // ==========================================================================
-    musicBtn.addEventListener('click', () => {
+    // Explicitly initialize volume to max
+    bgMusic.volume = 1.0;
+
+    musicBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // prevent body click handler from double-toggling
         if (bgMusic.paused) {
             bgMusic.play()
                 .then(() => {
@@ -381,6 +385,21 @@ document.addEventListener('DOMContentLoaded', () => {
             bgMusic.pause();
             musicBtn.classList.add('muted');
             musicBtn.querySelector('span').innerText = "Play Music 🎵";
+        }
+    });
+
+    // Global body click fallback for strict mobile browser autoplay blocks
+    document.body.addEventListener('click', () => {
+        // If the seal is broken, and music is not muted, and it is paused, play it
+        if (waxSeal && waxSeal.classList.contains('broken') && bgMusic.paused && !musicBtn.classList.contains('muted')) {
+            bgMusic.play()
+                .then(() => {
+                    musicBtn.classList.remove('muted');
+                    musicBtn.querySelector('span').innerText = "Mute Music 🔇";
+                })
+                .catch(err => {
+                    console.log("Autoplay body-level fallback blocked:", err);
+                });
         }
     });
 
